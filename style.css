@@ -21,7 +21,7 @@ html, body {
   height: 100%;
   background: var(--night);
   color: var(--moonlight);
-  font-family: 'Source Code Pro', Consolas, 'Courier New', monospace, 'Microsoft YaHei', 'PingFang SC', sans-serif;
+  font-family: Consolas, 'Courier New', '微软雅黑', monospace;
   overflow-x: hidden;
 }
 
