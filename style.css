@@ -1,0 +1,417 @@
+/* ============================================================
+ * 《if 人生 · BUG 纪念碑》全部视觉样式与动效
+ * 配色：深蓝夜空 #0b1026 / 月光白 #e8f4ff / 终端绿 #7ee787 / 碑文灰 #8b93a7
+ * ============================================================ */
+
+:root {
+  --night: #0b1026;
+  --moonlight: #e8f4ff;
+  --term-green: #7ee787;
+  --epitaph-gray: #8b93a7;
+  --panel-bg: rgba(16, 22, 48, 0.82);
+  --panel-border: rgba(126, 231, 135, 0.25);
+  --stone-face: #2a3145;
+  --stone-face-hi: #3a4358;
+  --danger: #ff7b72;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html, body {
+  height: 100%;
+  background: var(--night);
+  color: var(--moonlight);
+  font-family: 'Source Code Pro', Consolas, 'Courier New', monospace, 'Microsoft YaHei', 'PingFang SC', sans-serif;
+  overflow-x: hidden;
+}
+
+/* ---------- 背景：代码雨 & 月亮 ---------- */
+#rain-canvas {
+  position: fixed; inset: 0;
+  width: 100vw; height: 100vh;
+  z-index: 0; pointer-events: none;
+  opacity: 0.55;
+}
+
+#moon {
+  position: fixed; top: 28px; right: 32px;
+  width: 72px; height: 72px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #f4faff 0%, #dcebfb 55%, #b9cde6 100%);
+  box-shadow: 0 0 34px 8px rgba(232, 244, 255, 0.35), 0 0 90px 22px rgba(232, 244, 255, 0.12);
+  cursor: pointer; z-index: 30;
+  overflow: hidden;
+  transition: transform .3s ease;
+}
+#moon:hover { transform: scale(1.06); }
+#moon .moon-lid {
+  position: absolute; left: -10%; top: -110%;
+  width: 120%; height: 100%;
+  background: var(--night);
+  border-radius: 0 0 50% 50%;
+  transition: top .18s ease-in;
+  pointer-events: none;
+}
+#moon.blink .moon-lid { top: 10%; transition: top .18s ease-out; }
+
+/* ---------- 常驻属性面板（右上角，月亮之下） ---------- */
+#attr-panel {
+  position: fixed; top: 116px; right: 24px;
+  z-index: 25;
+  background: var(--panel-bg);
+  border: 1px solid var(--panel-border);
+  border-radius: 10px;
+  padding: 10px 14px;
+  min-width: 148px;
+  backdrop-filter: blur(4px);
+  box-shadow: 0 4px 18px rgba(0,0,0,.35);
+}
+#attr-panel .attr-title {
+  font-size: 11px; letter-spacing: 2px;
+  color: var(--epitaph-gray);
+  border-bottom: 1px dashed rgba(139,147,167,.35);
+  padding-bottom: 6px; margin-bottom: 6px;
+  text-align: center;
+}
+#attr-panel .attr-row {
+  display: flex; align-items: baseline; justify-content: space-between;
+  padding: 3px 0; font-size: 14px;
+  position: relative;
+}
+#attr-panel .attr-name { color: var(--moonlight); }
+#attr-panel .attr-val {
+  color: var(--term-green); font-weight: 600;
+  min-width: 2ch; text-align: right;
+  display: inline-block;
+}
+#attr-panel .attr-delta {
+  position: absolute; right: -6px; top: -2px;
+  font-size: 11px; opacity: 0;
+  pointer-events: none;
+}
+#attr-panel .attr-delta.show { animation: deltaFloat 1.1s ease-out forwards; }
+#attr-panel .attr-delta.up { color: var(--term-green); }
+#attr-panel .attr-delta.down { color: var(--danger); }
+@keyframes deltaFloat {
+  0% { opacity: 0; transform: translateY(6px); }
+  20% { opacity: 1; }
+  100% { opacity: 0; transform: translateY(-14px); }
+}
+
+/* ---------- 主容器与屏幕 ---------- */
+#app {
+  position: relative; z-index: 10;
+  min-height: 100vh;
+  display: flex; align-items: center; justify-content: center;
+  padding: 40px 20px 80px;
+}
+.screen {
+  width: 100%; max-width: 780px;
+  animation: screenIn .6s ease both;
+}
+@keyframes screenIn {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.hidden { display: none !important; }
+
+/* ---------- 通用排版 ---------- */
+.node-title {
+  color: var(--term-green);
+  font-size: 15px; letter-spacing: 3px;
+  margin-bottom: 22px;
+  text-shadow: 0 0 12px rgba(126,231,135,.4);
+}
+.node-title::before { content: '> '; color: var(--epitaph-gray); }
+.narrative { font-size: 16px; line-height: 2.05; }
+.narrative p { margin-bottom: 14px; color: var(--moonlight); min-height: 1em; }
+.narrative p.dim { color: var(--epitaph-gray); }
+.section-label {
+  margin: 30px 0 14px;
+  font-size: 13px; letter-spacing: 4px;
+  color: var(--term-green);
+  border-left: 3px solid var(--term-green);
+  padding-left: 10px;
+}
+.section-label.gray { color: var(--epitaph-gray); border-left-color: var(--epitaph-gray); }
+
+.type-caret::after {
+  content: '▌';
+  color: var(--term-green);
+  animation: caretBlink .8s steps(1) infinite;
+}
+@keyframes caretBlink { 50% { opacity: 0; } }
+
+.skip-hint {
+  margin-top: 26px; font-size: 12px;
+  color: var(--epitaph-gray); opacity: .7;
+  text-align: center; letter-spacing: 1px;
+}
+
+/* ---------- 按钮 ---------- */
+.btn {
+  display: inline-block;
+  background: transparent;
+  border: 1px solid var(--term-green);
+  color: var(--term-green);
+  font-family: inherit; font-size: 15px;
+  letter-spacing: 2px;
+  padding: 12px 34px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all .25s ease;
+  text-shadow: 0 0 8px rgba(126,231,135,.35);
+}
+.btn:hover {
+  background: rgba(126,231,135,.12);
+  box-shadow: 0 0 18px rgba(126,231,135,.35);
+  transform: translateY(-2px);
+}
+.btn.ghost {
+  border-color: var(--epitaph-gray); color: var(--epitaph-gray);
+  text-shadow: none;
+}
+.btn.ghost:hover {
+  background: rgba(139,147,167,.12);
+  box-shadow: 0 0 14px rgba(139,147,167,.25);
+}
+.btn-row { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; margin-top: 34px; }
+
+/* ---------- 开场屏 ---------- */
+#screen-opening { text-align: center; }
+.opening-cemetery {
+  display: flex; justify-content: center; align-items: flex-end;
+  gap: 26px; margin: 34px 0 30px; flex-wrap: wrap;
+}
+.big-stone { cursor: pointer; transition: transform .3s ease; }
+.big-stone:hover { transform: translateY(-6px); }
+
+/* ---------- 墓碑（CSS 绘制：圆顶矩形 + 编号） ---------- */
+.tombstone {
+  position: relative;
+  width: 96px; height: 128px;
+  background: linear-gradient(160deg, var(--stone-face-hi) 0%, var(--stone-face) 60%, #20263a 100%);
+  border-radius: 48px 48px 8px 8px;
+  border: 1px solid rgba(139,147,167,.4);
+  box-shadow: inset 0 -10px 18px rgba(0,0,0,.35), 0 8px 18px rgba(0,0,0,.45);
+  display: flex; flex-direction: column; align-items: center;
+  padding-top: 26px;
+  flex: 0 0 auto;
+}
+.tombstone::before { /* 碑座 */
+  content: '';
+  position: absolute; bottom: -10px; left: -10px; right: -10px;
+  height: 12px;
+  background: #20263a;
+  border: 1px solid rgba(139,147,167,.35);
+  border-radius: 3px;
+}
+.tombstone .stone-no {
+  font-size: 11px; color: var(--epitaph-gray); letter-spacing: 1px;
+}
+.tombstone .stone-name {
+  margin-top: 10px; padding: 0 8px;
+  font-size: 12px; color: var(--moonlight);
+  text-align: center; line-height: 1.5;
+  word-break: break-all;
+}
+.tombstone.glow {
+  border-color: rgba(126,231,135,.6);
+  box-shadow: inset 0 -10px 18px rgba(0,0,0,.35), 0 0 22px rgba(126,231,135,.3);
+}
+.tombstone.locked { opacity: .38; filter: grayscale(.6); }
+.tombstone.small { width: 78px; height: 104px; border-radius: 39px 39px 6px 6px; padding-top: 18px; }
+.tombstone.small .stone-name { font-size: 10px; margin-top: 6px; }
+.tombstone.small .stone-no { font-size: 10px; }
+.tombstone.large { width: 190px; height: 250px; border-radius: 95px 95px 12px 12px; padding-top: 44px; }
+.tombstone.large .stone-no { font-size: 13px; }
+.tombstone.large .stone-name { font-size: 15px; margin-top: 16px; padding: 0 18px; }
+
+/* hover 浮现碑文 */
+.stone-tip {
+  position: absolute; bottom: calc(100% + 14px); left: 50%;
+  transform: translateX(-50%) translateY(6px);
+  width: 220px;
+  background: var(--panel-bg);
+  border: 1px solid var(--panel-border);
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 12px; line-height: 1.7;
+  color: var(--moonlight);
+  opacity: 0; pointer-events: none;
+  transition: opacity .25s ease, transform .25s ease;
+  z-index: 40;
+  text-align: left;
+}
+.tombstone:hover .stone-tip { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* ---------- 选项卡片 ---------- */
+.choices { margin-top: 30px; display: flex; flex-direction: column; gap: 16px; }
+.choice-card {
+  text-align: left;
+  background: var(--panel-bg);
+  border: 1px solid rgba(139,147,167,.35);
+  border-radius: 10px;
+  padding: 16px 20px;
+  color: var(--moonlight);
+  font-family: inherit; font-size: 15px;
+  cursor: pointer;
+  transition: transform .22s ease, border-color .22s ease, box-shadow .22s ease;
+  opacity: 0; animation: cardIn .5s ease forwards;
+}
+.choice-card:nth-child(2) { animation-delay: .12s; }
+.choice-card:nth-child(3) { animation-delay: .24s; }
+@keyframes cardIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+.choice-card:hover {
+  transform: translateY(-3px) translateX(4px);
+  border-color: var(--term-green);
+  box-shadow: 0 6px 22px rgba(126,231,135,.18);
+}
+.choice-card .choice-head { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.choice-card .choice-key {
+  color: var(--term-green); font-weight: 600;
+  border: 1px solid rgba(126,231,135,.5);
+  border-radius: 4px; padding: 1px 8px;
+}
+.style-tag { font-size: 12px; padding: 2px 8px; border-radius: 10px; letter-spacing: 1px; }
+.style-tag.risk { color: #ffb86c; border: 1px solid rgba(255,184,108,.5); }
+.style-tag.safe { color: #79c0ff; border: 1px solid rgba(121,192,255,.5); }
+.style-tag.neutral { color: var(--epitaph-gray); border: 1px solid rgba(139,147,167,.5); }
+.choice-card .choice-effects { margin-top: 8px; font-size: 12.5px; color: var(--epitaph-gray); letter-spacing: .5px; }
+.choice-card .choice-effects .fx-up { color: var(--term-green); }
+.choice-card .choice-effects .fx-down { color: var(--danger); }
+
+/* ---------- 结局屏（现实/平行/刻字） ---------- */
+.fade-block { animation: fadeIn .9s ease both; }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+.engrave-wrap { display: flex; flex-direction: column; align-items: center; margin: 34px 0 10px; }
+.engrave-text { min-height: 3.2em; text-align: center; }
+.engrave-text .line { display: block; }
+
+/* ---------- 随机事件 ---------- */
+.event-card {
+  border: 1px dashed rgba(126,231,135,.45);
+  border-radius: 12px;
+  padding: 30px 28px;
+  background: rgba(126,231,135,.05);
+  text-align: center;
+  animation: fadeIn .8s ease both;
+}
+.event-card .event-tag {
+  display: inline-block; font-size: 12px; letter-spacing: 3px;
+  color: var(--term-green); border: 1px solid rgba(126,231,135,.5);
+  border-radius: 12px; padding: 3px 14px; margin-bottom: 18px;
+}
+.event-card .event-text { font-size: 17px; line-height: 1.9; }
+.event-card .event-note { margin-top: 10px; font-size: 13px; color: var(--epitaph-gray); }
+.event-card .event-effects { margin-top: 16px; font-size: 14px; }
+
+/* ---------- 终局屏 ---------- */
+#screen-finalending { text-align: center; }
+.ending-name {
+  font-size: 30px; letter-spacing: 6px;
+  color: var(--term-green);
+  text-shadow: 0 0 24px rgba(126,231,135,.55);
+  margin: 18px 0 26px;
+  animation: fadeIn 1.4s ease both;
+}
+.ending-lines { text-align: left; max-width: 640px; margin: 0 auto; }
+.e8-grid-wrap { display: flex; justify-content: center; margin: 10px 0 24px; }
+#e8-canvas { border-radius: 8px; }
+
+/* ---------- 纪念碑屏 ---------- */
+.monument-wrap { display: flex; flex-direction: column; align-items: center; text-align: center; }
+.monument-stone-zone { position: relative; margin: 20px 0 8px; }
+.monument-epitaph {
+  max-width: 640px;
+  font-size: 15px; line-height: 2.1;
+  color: var(--moonlight);
+  background: var(--panel-bg);
+  border: 1px solid var(--panel-border);
+  border-radius: 10px;
+  padding: 22px 26px;
+  margin-top: 26px;
+  text-align: left;
+}
+.player-tag {
+  display: inline-block; margin-top: 18px;
+  color: var(--night); background: var(--term-green);
+  font-weight: 600; letter-spacing: 2px;
+  border-radius: 14px; padding: 5px 18px;
+  box-shadow: 0 0 18px rgba(126,231,135,.45);
+}
+.monument-attrs {
+  display: flex; gap: 14px; margin-top: 22px; flex-wrap: wrap; justify-content: center;
+}
+.monument-attrs .m-attr {
+  border: 1px solid rgba(139,147,167,.4); border-radius: 8px;
+  padding: 10px 18px; min-width: 86px;
+  background: rgba(16,22,48,.6);
+}
+.monument-attrs .m-attr .k { font-size: 12px; color: var(--epitaph-gray); }
+.monument-attrs .m-attr .v { font-size: 22px; color: var(--term-green); font-weight: 600; margin-top: 4px; }
+.monument-stats { margin-top: 16px; font-size: 13px; color: var(--epitaph-gray); letter-spacing: 1px; }
+
+/* ---------- 图鉴页 / 成就页 ---------- */
+.page-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+.page-title { color: var(--term-green); font-size: 18px; letter-spacing: 3px; }
+.page-sub { color: var(--epitaph-gray); font-size: 13px; margin-bottom: 24px; letter-spacing: 1px; }
+.collection-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+  gap: 30px 18px; padding: 10px 4px 30px;
+}
+.collection-grid .cell { display: flex; justify-content: center; }
+.ach-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 14px; padding-bottom: 30px; }
+.ach-card {
+  border: 1px solid rgba(139,147,167,.35); border-radius: 10px;
+  padding: 14px 16px; background: var(--panel-bg);
+  transition: all .25s ease;
+}
+.ach-card.unlocked { border-color: var(--term-green); box-shadow: 0 0 14px rgba(126,231,135,.18); }
+.ach-card .ach-name { font-size: 15px; color: var(--moonlight); }
+.ach-card.unlocked .ach-name { color: var(--term-green); }
+.ach-card .ach-name::before { content: '🔒 '; font-size: 12px; }
+.ach-card.unlocked .ach-name::before { content: '✦ '; }
+.ach-card .ach-desc { margin-top: 6px; font-size: 12px; color: var(--epitaph-gray); }
+
+/* ---------- 分享卡片预览 ---------- */
+.share-preview { display: flex; flex-direction: column; align-items: center; gap: 18px; }
+.share-preview img {
+  max-width: 340px; width: 100%;
+  border-radius: 12px; border: 1px solid var(--panel-border);
+  box-shadow: 0 10px 40px rgba(0,0,0,.5);
+}
+
+/* ---------- 烟花 Canvas & 提示 ---------- */
+#fireworks-canvas {
+  position: fixed; inset: 0; width: 100vw; height: 100vh;
+  z-index: 50; pointer-events: none;
+}
+#toast {
+  position: fixed; top: 46%; left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 60;
+  color: var(--term-green);
+  font-size: 22px; letter-spacing: 4px;
+  text-shadow: 0 0 20px rgba(126,231,135,.8);
+  animation: toastIn 2.6s ease forwards;
+  pointer-events: none;
+  text-align: center;
+}
+@keyframes toastIn {
+  0% { opacity: 0; transform: translate(-50%, -40%); }
+  15% { opacity: 1; transform: translate(-50%, -50%); }
+  80% { opacity: 1; }
+  100% { opacity: 0; transform: translate(-50%, -56%); }
+}
+
+/* ---------- 滚动条 ---------- */
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: var(--night); }
+::-webkit-scrollbar-thumb { background: #2a3145; border-radius: 4px; }
+
+@media (max-width: 640px) {
+  #attr-panel { position: static; margin: 12px auto 0; }
+  #moon { width: 52px; height: 52px; top: 16px; right: 16px; }
+  .ending-name { font-size: 22px; }
+}
